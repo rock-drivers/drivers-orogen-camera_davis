@@ -71,9 +71,9 @@ bool Task::startHook()
 
     // In case autoexposure is enabled, initialize the exposure time with the exposure value
     // from the parameter server
-    if(this->current_config.autoexposure_enabled)
+    if(this->device_config.autoexposure_enabled)
     {
-        caerDeviceConfigSet(this->davis_handle, DAVIS_CONFIG_APS, DAVIS_CONFIG_APS_EXPOSURE, this->current_config.exposure);
+        caerDeviceConfigSet(this->davis_handle, DAVIS_CONFIG_APS, DAVIS_CONFIG_APS_EXPOSURE, this->device_config.exposure);
     }
 
     /** wait for driver to be ready **/

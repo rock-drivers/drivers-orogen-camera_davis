@@ -44,7 +44,7 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
 
         struct caer_davis_info davis_info;
         std::string device_id;
-        camera_davis::DriverConfig current_config;
+        camera_davis::DeviceConfig device_config;
 
     public:
         /** TaskContext constructor for Task

@@ -11,11 +11,13 @@ import_types_from "camera_davisTypes.hpp"
 # conventions, a common use-case would be:
 #
 using_library "libcaer"
+using_library "frame_helper" # Image Frames
 
 # If this project uses data types that are defined in other oroGen projects,
 # these projects should be imported there as well.
 import_types_from "std"
 import_types_from "base"
+import_types_from "frame_helper/Calibration.h"
 
 # Declare a new task context (i.e., a component)
 #
@@ -37,8 +39,24 @@ task_context "Task" do
     property "imu_calibration_sample_size", "int", 1000
     property "acc_bias", "base::Vector3d"
     property "gyro_bias", "base::Vector3d"
-    property "driver_config", "camera_davis::DriverConfig"
 
+    #***************************
+    #**** Device Properties ****
+    #***************************
+    property "device_config", "camera_davis::DeviceConfig"
+    property "hardware_filters", "camera_davis::HardwareFilters"
+    property "dvs_region_interest", "camera_davis::DVSRegionOfInterest"
+    property "aps_region_interest", "camera_davis::APSRegionOfInterest"
+    property "pixel_filter", "camera_davis::PixelFilter"
+    property "davis_biases_1", "camera_davis::DavisBiasesStage1"
+    property "davis_biases_2", "camera_davis::DavisBiasesStage2"
+    property "davis_biases_aps", "camera_davis::DavisBiasesAPS"
+
+    #***************************
+    #**** Camera Calibration ****
+    #***************************
+    property("camera_parameters", 'frame_helper/CameraCalibration').
+        doc 'Camera intrinsic parameters.'
 
     #******************************
     #******* Output Ports *********
