@@ -23,7 +23,7 @@ namespace camera_davis
 
     struct EventArray
     {
-        ::base::Time ts;
+        ::base::Time time;
         unsigned int height;
         unsigned int width;
 
@@ -34,7 +34,7 @@ namespace camera_davis
     struct DeviceConfig
     {
         int streaming_rate;
-        int max_events;
+        unsigned int max_events;
         bool aps_enabled;
         bool dvs_enabled;
         bool imu_enabled;
