@@ -36,7 +36,7 @@ task_context "Task" do
     property "master", "bool", true
         doc "reset timestamps is publisher as master or as slave"
     property "reset_timestamps_delay", "double", -1.0
-    property "imu_calibration_sample_size", "int", 1000
+    property "imu_calibration_sample_size", "unsigned int", 1000
     property "acc_bias", "base::Vector3d"
     property "gyro_bias", "base::Vector3d"
 
