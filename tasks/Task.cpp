@@ -64,6 +64,7 @@ bool Task::configureHook()
 
     /** Set the period to the TaskContext **/
     TaskContext::setPeriod(1.0/this->device_config.streaming_rate);
+    RTT::log(RTT::Info)<<"Set TaskContext period to: "<<1.0/this->device_config.streaming_rate<<"[seconds]"<<RTT::endlog();
 
     /** configure we set the configuration (after we connect) **/
     this->configureDevice();
@@ -409,7 +410,6 @@ void Task::readout()
 
     int32_t packetNum = caerEventPacketContainerGetEventPacketsNumber(packetContainer);
 
-    std::cout<<"BEFORE FOR LOOP \n";
     for (int32_t i = 0; i < packetNum; i++)
     {
         caerEventPacketHeader packetHeader = caerEventPacketContainerGetEventPacket(packetContainer, i);
