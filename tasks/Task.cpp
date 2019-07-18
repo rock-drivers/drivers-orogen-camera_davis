@@ -61,6 +61,10 @@ bool Task::configureHook()
 
     this->delta = boost::posix_time::microseconds(1e6/this->device_config.streaming_rate);
 
+
+    /** Set the period to the TaskContext **/
+    TaskContext::setPeriod(1.0/this->device_config.streaming_rate);
+
     /** configure we set the configuration (after we connect) **/
     this->configureDevice();
 
@@ -78,6 +82,10 @@ bool Task::startHook()
 void Task::updateHook()
 {
     TaskBase::updateHook();
+
+    std::cout<<"*********START UPDATE HOOK ***********\n";
+    this->readout();
+    std::cout<<"*********END UPDATE HOOK ***********\n";
 }
 void Task::errorHook()
 {
@@ -109,7 +117,7 @@ bool Task::connect()
 
     if(serial_number_restrict)
     {
-      RTT::log(RTT::Info)<<"Requested serial number: %s"<< _serial_number.value().c_str()<<RTT::endlog();
+      RTT::log(RTT::Info)<<"Requested serial number: "<< _serial_number.value()<<RTT::endlog();
     }
 
     this->davis_handle = caerDeviceOpen(1, CAER_DEVICE_DAVIS, 0, 0, serial_number_restrict);
@@ -155,7 +163,7 @@ void Task::resetTimestamps()
     caerDeviceConfigSet(this->davis_handle, DAVIS_CONFIG_MUX, DAVIS_CONFIG_MUX_TIMESTAMP_RESET, 1);
     this->reset_time = base::Time::now();
 
-    RTT::log(RTT::Info)<<"Reset timestamps on "<< this->device_id.c_str()<<" to "<< reset_time.toSeconds()<<RTT::endlog();
+    RTT::log(RTT::Info)<<"Reset timestamps on "<< this->device_id.c_str()<<" to "<< reset_time.toString()<<RTT::endlog();
 
     // if master, publish reset time to slaves
     if (_master.value())
@@ -401,6 +409,7 @@ void Task::readout()
 
     int32_t packetNum = caerEventPacketContainerGetEventPacketsNumber(packetContainer);
 
+    std::cout<<"BEFORE FOR LOOP \n";
     for (int32_t i = 0; i < packetNum; i++)
     {
         caerEventPacketHeader packetHeader = caerEventPacketContainerGetEventPacket(packetContainer, i);
