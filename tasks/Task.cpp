@@ -158,12 +158,12 @@ void Task::resetTimestamps()
     RTT::log(RTT::Info)<<"Reset timestamps on "<< this->device_id.c_str()<<" to "<< reset_time.toSeconds()<<RTT::endlog();
 
     // if master, publish reset time to slaves
-    //if (master_)
-    //{
+    if (_master.value())
+    {
         //std_msgs::Time reset_msg;
         //reset_msg.data = reset_time_;
         //reset_pub_.publish(reset_msg);
-    //}
+    }
     return;
 }
 
@@ -389,8 +389,7 @@ void Task::updateIMUBias()
 
     RTT::log(RTT::Info)<<"IMU calibration done."<<RTT::endlog();
     RTT::log(RTT::Info)<<"Acceleration biases: "<< this->bias.acc[0] <<", "<< this->bias.acc[1] <<", "<< this->bias.acc[2] <<" [m/s^2]"<<RTT::endlog();
-   // ROS_INFO("Gyroscope biases: %1.5f %1.5f %1.5f [rad/s]", bias.angular_velocity.x,
-    //         bias.angular_velocity.y, bias.angular_velocity.z);
+    RTT::log(RTT::Info)<<"Gyroscope biases: "<< this->bias.gyro[0] <<", "<< this->bias.gyro[1] <<", "<< this->bias.gyro[2] <<" [rad/s]"<<RTT::endlog();
 }
 
 void Task::readout()

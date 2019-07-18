@@ -153,7 +153,11 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
          * */
         void resetTimestamps();
 
+        /** @brief simply accumulate data to
+         * compute imu bias
+         * **/
         void updateIMUBias();
+
         /** @brief readout data samples from device
          * **/
         void readout();
