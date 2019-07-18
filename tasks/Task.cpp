@@ -64,7 +64,7 @@ bool Task::configureHook()
 
     /** Set the period to the TaskContext **/
     TaskContext::setPeriod(1.0/this->device_config.streaming_rate);
-    RTT::log(RTT::Info)<<"Set TaskContext period to: "<<1.0/this->device_config.streaming_rate<<"[seconds]"<<RTT::endlog();
+    RTT::log(RTT::Info)<<"Connection result: "<<is_connected<<" - Set TaskContext period to: "<<1.0/this->device_config.streaming_rate<<"[seconds]"<<RTT::endlog();
 
     /** configure we set the configuration (after we connect) **/
     this->configureDevice();
