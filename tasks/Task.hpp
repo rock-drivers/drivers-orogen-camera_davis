@@ -9,6 +9,10 @@
 #include <libcaer/libcaer.h>
 #include <libcaer/devices/davis.h>
 
+/** boost **/
+#include <boost/date_time/posix_time/posix_time.hpp>
+
+
 #include "camera_davis/TaskBase.hpp"
 
 namespace camera_davis{
@@ -36,15 +40,37 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
 	friend class TaskBase;
     protected:
 
+        static constexpr double STANDARD_GRAVITY = 9.81;
+
         /** control boolean flag **/
         bool device_is_running;
+        bool imu_calibration_running;
 
         /** Davis camera handler **/
         caerDeviceHandle davis_handle;
 
+        /** configuration variables **/
         struct caer_davis_info davis_info;
         std::string device_id;
         camera_davis::DeviceConfig device_config;
+        camera_davis::HardwareFilters hardware_filters;
+        camera_davis::DVSRegionOfInterest dvs_region_interest;
+        camera_davis::APSRegionOfInterest aps_region_interest;
+        camera_davis::PixelFilter pixel_filter;
+        camera_davis::DavisBiasesStage1 davis_biases_1;
+        camera_davis::DavisBiasesStage2 davis_biases_2;
+        camera_davis::DavisBiasesAPS davis_biases_aps;
+        boost::posix_time::time_duration delta;
+
+        /** Calibration variables **/
+        ::base::samples::IMUSensors bias;
+        std::vector< ::base::samples::IMUSensors > imu_calibration_samples;
+
+        base::Time reset_time;
+
+        /** output ports variables **/
+        ::base::samples::IMUSensors imu_msg;
+        camera_davis::EventArray event_array_msg;
 
     public:
         /** TaskContext constructor for Task
@@ -55,7 +81,7 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
 
         /** Default deconstructor of Task
          */
-	~Task();
+        ~Task();
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the
@@ -66,7 +92,7 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
          * in the task context definition with (for example):
          \verbatim
          task_context "TaskName" do
-           needs_configuration
+           needs_cbase::Time reset_time onfiguration
            ...
          end
          \endverbatim
@@ -115,9 +141,29 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
          */
         void cleanupHook();
 
+        /** @brief connect to the device
+         * **/
+        bool connect();
+
+        /** @brief configure the device
+         * **/
+        void configureDevice();
+
         /** @brief reset the timestamp
          * */
         void resetTimestamps();
+
+        void updateIMUBias();
+        /** @brief readout data samples from device
+         * **/
+        void readout();
+
+        template <typename T> int sgn(T val)
+        {
+              return (T(0) < val) - (val < T(0));
+        }
+
+
     };
 }
 
