@@ -38,7 +38,7 @@ davis_biases_aps:
 # ***************************
 # **** Device Properties ****
 # ***************************
-driver_config:
+device_config:
   streaming_rate: 30
   max_events: 0
   aps_enabled: true
@@ -105,7 +105,6 @@ pixel_filter:
 reset_timestamps_delay: -1.0
 
 --- name:DAVIS-84010059
-
 # ***************************
 # **** Driver Properties ****
 # ***************************
