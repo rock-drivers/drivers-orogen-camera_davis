@@ -1,11 +1,5 @@
 --- name:default
 # no documentation available for this property
-acc_bias:
-  data:
-  - 6.9530558110357e-310
-  - 4.6594767859282e-310
-  - 6.9530558110357e-310
-# no documentation available for this property
 aps_region_interest:
   aps_roi_start_column: 0
   aps_roi_start_row: 0
@@ -13,21 +7,6 @@ aps_region_interest:
   aps_roi_end_row: 0
   state: false
   name: ''
-# Camera intrinsic parameters.
-camera_parameters:
-  fx: .nan
-  fy: .nan
-  cx: .nan
-  cy: .nan
-  d0: .nan
-  d1: .nan
-  d2: .nan
-  d3: .nan
-  width: -1
-  height: -1
-  ex: .nan
-  ey: .nan
-  fisheye: false
 # no documentation available for this property
 davis_biases_1:
   PrBp_coarse: 2
@@ -85,12 +64,6 @@ dvs_region_interest:
   state: false
   name: ''
 # no documentation available for this property
-gyro_bias:
-  data:
-  - 4.6594772893905e-310
-  - 9.4e-323
-  - 9.4e-323
-# no documentation available for this property
 hardware_filters:
   background_activity_filter_enabled: false
   background_activity_filter_time: 0
@@ -130,7 +103,40 @@ pixel_filter:
   name: ''
 # no documentation available for this property
 reset_timestamps_delay: -1.0
+
+--- name:DAVIS-84010059
+
 # ***************************
 # **** Driver Properties ****
 # ***************************
-serial_number: ''
+serial_number: '84010059'
+
+# Camera intrinsic parameters.
+camera_parameters:
+  fx: 197.466205
+  fy: 197.619274
+  cx: 132.572617
+  cy: 113.176747
+  d0: -0.347401
+  d1: 0.123373
+  d2: -0.000568
+  d3: -0.001087
+  width: 240
+  height: 180
+  ex: .nan
+  ey: .nan
+  fisheye: false
+
+# no documentation available for this property
+acc_bias:
+  data:
+  - 0.0
+  - 0.0
+  - 0.0
+# no documentation available for this property
+gyro_bias:
+  data:
+  - 0.0
+  - 0.0
+  - 0.0
+
