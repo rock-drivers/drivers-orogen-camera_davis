@@ -30,22 +30,22 @@ camera_parameters:
   fisheye: false
 # no documentation available for this property
 davis_biases_1:
-  PrBp_coarse: 0
-  PrBp_fine: 0
-  PrSFBp_coarse: 0
-  PrSFBp_fine: 0
+  PrBp_coarse: 2
+  PrBp_fine: 58
+  PrSFBp_coarse: 1
+  PrSFBp_fine: 33
   state: false
   name: ''
 # no documentation available for this property
 davis_biases_2:
-  DiffBn_coarse: 0
-  DiffBn_fine: 0
-  ONBn_coarse: 0
-  ONBn_fine: 0
-  OFFBn_coarse: 0
+  DiffBn_coarse: 4
+  DiffBn_fine: 39
+  ONBn_coarse: 6
+  ONBn_fine: 200
+  OFFBn_coarse: 4
   OFFBn_fine: 0
-  RefrBp_coarse: 0
-  RefrBp_fine: 0
+  RefrBp_coarse: 4
+  RefrBp_fine: 25
   state: false
   name: ''
 # no documentation available for this property
@@ -72,7 +72,7 @@ driver_config:
   frame_mode: 0
   frame_interval: 0
   imu_acc_scale: 3
-  imu_gyro_scale: 0
+  imu_gyro_scale: 3
   imu_low_pass_filter: 0
   state: false
   name: ''
