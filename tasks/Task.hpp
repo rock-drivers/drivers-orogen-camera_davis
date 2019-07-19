@@ -6,12 +6,14 @@
 #pragma once
 
 // DAVIS driver
-#include <libcaer/libcaer.h>
-#include <libcaer/devices/davis.h>
+#include <libcaercpp/devices/davis.hpp>
 
 /** boost **/
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+/** Base types **/
+#include <base/samples/IMUSensors.hpp>
+#include <base/samples/Frame.hpp>
 
 #include "camera_davis/TaskBase.hpp"
 
@@ -37,7 +39,7 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
     class Task : public TaskBase
     {
 
-	friend class TaskBase;
+    friend class TaskBase;
     protected:
 
         static constexpr double STANDARD_GRAVITY = 9.81;
@@ -47,7 +49,7 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
         bool imu_calibration_running;
 
         /** Davis camera handler **/
-        caerDeviceHandle davis_handle;
+        std::unique_ptr<libcaer::devices::davis> davis_handle;
 
         /** configuration variables **/
         struct caer_davis_info davis_info;
@@ -71,6 +73,7 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
         /** output ports variables **/
         ::base::samples::IMUSensors imu_msg;
         camera_davis::EventArray event_array_msg;
+        RTT::extras::ReadOnlyPointer<base::samples::frame::Frame> frame_msg;
 
     public:
         /** TaskContext constructor for Task
@@ -162,11 +165,11 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
          * **/
         void readout();
 
+
         template <typename T> int sgn(T val)
         {
               return (T(0) < val) - (val < T(0));
         }
-
 
     };
 }
