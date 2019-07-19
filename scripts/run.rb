@@ -23,7 +23,7 @@ Orocos::Process.run 'camera_davis::Task' => 'camera_davis' do
     driver.serial_number = ARGV[0]
 
     driver.configure
-#    driver.start
+    driver.start
 
     Vizkit.exec
 end
