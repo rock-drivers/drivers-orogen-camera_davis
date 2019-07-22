@@ -95,9 +95,14 @@ bool Task::configureHook()
     /** configure we set the configuration (after we connect) **/
     this->configureDevice();
 
+    /** imu calibration control variables **/
     this->imu_calibration_running = true;
     this->imu_calibration_samples.clear();
 
+    /** calibration parameters in frame helper **/
+    this->task_frame_helper.setCalibrationParameter(_camera_parameters.value());
+
+    /** set the frame member **/
     ::base::samples::frame::Frame *frame = new ::base::samples::frame::Frame();
     this->frame_msg.reset(frame);
     frame = nullptr;
@@ -458,7 +463,7 @@ void Task::readout()
     {
         if (packet == nullptr)
         {
-            printf("Packet is empty (not present).\n");
+            //printf("Packet is empty (not present).\n");
             continue; // Skip if nothing there.
         }
 
@@ -563,23 +568,30 @@ void Task::readout()
                 printf("Matrix: %s %dx%d \n", ty.c_str(), cv_frame.cols, cv_frame.rows );
                 std::cout<<"Number channels: "<<channel2str(f.getChannelNumber())<<"\n";*/
 
-                ::base::samples::frame::Frame *frame_msg_ptr = this->frame_msg.write_access();
-                frame_msg_ptr->init(f.getLengthX(), f.getLengthY(), static_cast<uint8_t>(8), ::base::samples::frame::MODE_GRAYSCALE, f.getPixelsSize());
-                frame_msg_ptr->received_time = ::base::Time::fromMicroseconds(f.getTimestamp());
-                frame_msg_ptr->time = (this->reset_time + ::base::Time::fromMicroseconds(f.getTimestamp()));
+                /** Get image frame metadata **/
+                ::base::samples::frame::Frame tmp_frame;
+                tmp_frame.init(f.getLengthX(), f.getLengthY(), static_cast<uint8_t>(8), ::base::samples::frame::MODE_GRAYSCALE, f.getPixelsSize());
 
-                frame_msg_ptr->image.clear();
-
-                // set message data
+                /** get the image data **/
+                 tmp_frame.image.clear();
                 for (int img_y=0; img_y<f.getLengthY(); img_y++)
                 {
                     for (int img_x=0; img_x<f.getLengthX(); img_x++)
                     {
                         const uint16_t value = f.getPixel(img_x, img_y);
-                        frame_msg_ptr->image.push_back(value >> 8);
+                        tmp_frame.image.push_back(value >> 8);
                     }
                 }
 
+                /** Undistort the image **/
+                ::base::samples::frame::Frame *frame_msg_ptr = this->frame_msg.write_access();
+                frame_msg_ptr->init(tmp_frame.size.width, tmp_frame.size.height, tmp_frame.getDataDepth(), tmp_frame.getFrameMode());
+                frame_msg_ptr->image.clear();
+                this->task_frame_helper.convert(tmp_frame, *frame_msg_ptr);
+
+                /** Write in the class member **/
+                frame_msg_ptr->time = (this->reset_time + ::base::Time::fromMicroseconds(f.getTimestamp()));
+                frame_msg_ptr->received_time = ::base::Time::fromMicroseconds(f.getTimestamp());
                 this->frame_msg.reset(frame_msg_ptr);
 
                 /** Write the camera frame into the port **/
