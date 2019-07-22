@@ -104,6 +104,9 @@ pixel_filter:
 # no documentation available for this property
 reset_timestamps_delay: -1.0
 
+#Set to true is you want Frame + event combined out in an image
+combined_output: true
+
 --- name:DAVIS-84010059
 # ***************************
 # **** Driver Properties ****
