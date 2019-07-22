@@ -108,14 +108,23 @@ bool Task::startHook()
 {
     if (! TaskBase::startHook())
         return false;
+
+    /** Start device **/
+    this->davis_handle->configSet(CAER_HOST_CONFIG_DATAEXCHANGE, CAER_HOST_CONFIG_DATAEXCHANGE_BLOCKING, true);
+    this->davis_handle->dataStart(nullptr, nullptr, nullptr, &usbShutdownHandler, nullptr);
+    this->next_send_time = boost::posix_time::microsec_clock::local_time();
+
     return true;
 }
 void Task::updateHook()
 {
     TaskBase::updateHook();
 
-    std::cout<<"****\n";
-    this->readout();
+    while (true)
+    {
+        std::cout<<"****\n";
+        this->readout();
+    }
 }
 void Task::errorHook()
 {
@@ -433,15 +442,10 @@ void Task::updateIMUBias()
 
 void Task::readout()
 {
-    this->davis_handle->configSet(CAER_HOST_CONFIG_DATAEXCHANGE, CAER_HOST_CONFIG_DATAEXCHANGE_BLOCKING, true);
-    this->davis_handle->dataStart(nullptr, nullptr, nullptr, &usbShutdownHandler, nullptr);
-    boost::posix_time::ptime next_send_time = boost::posix_time::microsec_clock::local_time();
-
-    while (true)
-    {
 
     std::unique_ptr<libcaer::events::EventPacketContainer> packet_container = this->davis_handle->dataGet();
 
+    /** Skip if nothing there **/
     if (packet_container == nullptr)
     {
         std::cout<<"Container empty\n";
@@ -544,7 +548,6 @@ void Task::readout()
         }
         else if (packet->getEventType() == FRAME_EVENT)
         {
-            std::cout<<"Received FRAME\n";
             std::shared_ptr<const libcaer::events::FrameEventPacket> frame
                 = std::static_pointer_cast<libcaer::events::FrameEventPacket>(packet);
 
@@ -555,16 +558,34 @@ void Task::readout()
                     continue;
                 }
 
-                //cv::Mat cv_frame = f.getOpenCVMat(false);
+                /*cv::Mat cv_frame = f.getOpenCVMat(false);
+                std::string ty =  type2str( cv_frame.type() );
+                printf("Matrix: %s %dx%d \n", ty.c_str(), cv_frame.cols, cv_frame.rows );
+                std::cout<<"Number channels: "<<channel2str(f.getChannelNumber())<<"\n";*/
+
                 ::base::samples::frame::Frame *frame_msg_ptr = this->frame_msg.write_access();
-                frame_msg_ptr->time = this->reset_time + ::base::Time::fromMicroseconds(f.getTimestamp());
-                frame_msg_ptr->init(f.getLengthX(), f.getLengthY(), static_cast<uint8_t>(8), ::base::samples::frame::MODE_GRAYSCALE,
-                        *reinterpret_cast<const uint8_t*>(f.getPixelArrayUnsafe()), f.getPixelsSize());
-               _frame.write(this->frame_msg);
+                frame_msg_ptr->init(f.getLengthX(), f.getLengthY(), static_cast<uint8_t>(8), ::base::samples::frame::MODE_GRAYSCALE, f.getPixelsSize());
+                frame_msg_ptr->received_time = ::base::Time::fromMicroseconds(f.getTimestamp());
+                frame_msg_ptr->time = (this->reset_time + ::base::Time::fromMicroseconds(f.getTimestamp()));
+
+                frame_msg_ptr->image.clear();
+
+                // set message data
+                for (int img_y=0; img_y<f.getLengthY(); img_y++)
+                {
+                    for (int img_x=0; img_x<f.getLengthX(); img_x++)
+                    {
+                        const uint16_t value = f.getPixel(img_x, img_y);
+                        frame_msg_ptr->image.push_back(value >> 8);
+                    }
+                }
+
+                this->frame_msg.reset(frame_msg_ptr);
+
+                /** Write the camera frame into the port **/
+                _frame.write(this->frame_msg);
             }
         }
-    }
-
     }
 }
 

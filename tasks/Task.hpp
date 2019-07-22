@@ -15,6 +15,8 @@
 #include <base/samples/IMUSensors.hpp>
 #include <base/samples/Frame.hpp>
 
+#include <frame_helper/FrameHelper.h>
+
 #include "camera_davis/TaskBase.hpp"
 
 namespace camera_davis{
@@ -69,6 +71,8 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
         std::vector< ::base::samples::IMUSensors > imu_calibration_samples;
 
         base::Time reset_time;
+        boost::posix_time::ptime next_send_time;
+        frame_helper::FrameHelper task_frame_helper;
 
         /** output ports variables **/
         ::base::samples::IMUSensors imu_msg;
@@ -171,6 +175,45 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
               return (T(0) < val) - (val < T(0));
         }
 
+        std::string type2str(int type)
+        {
+          std::string r;
+
+          uchar depth = type & CV_MAT_DEPTH_MASK;
+          uchar chans = 1 + (type >> CV_CN_SHIFT);
+
+          switch ( depth )
+          {
+            case CV_8U:  r = "8U"; break;
+            case CV_8S:  r = "8S"; break;
+            case CV_16U: r = "16U"; break;
+            case CV_16S: r = "16S"; break;
+            case CV_32S: r = "32S"; break;
+            case CV_32F: r = "32F"; break;
+            case CV_64F: r = "64F"; break;
+            default:     r = "User"; break;
+          }
+
+          r += "C";
+          r += (chans+'0');
+
+          return r;
+        }
+
+        std::string channel2str(libcaer::events::FrameEvent::colorChannels channel)
+        {
+          std::string r;
+
+          switch ( channel )
+          {
+                case libcaer::events::FrameEvent::colorChannels::GRAYSCALE:  r = "1"; break;
+                case libcaer::events::FrameEvent::colorChannels::RGB :  r = "2"; break;
+                case libcaer::events::FrameEvent::colorChannels::RGBA : r = "3"; break;
+            default:     r = "no channel"; break;
+          }
+
+          return r;
+        }
     };
 }
 
