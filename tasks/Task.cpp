@@ -27,11 +27,13 @@ using namespace camera_davis;
 
 static std::atomic_bool globalShutdown(false);
 
-static void globalShutdownSignalHandler(int signal)
+static void hdl(int signal, siginfo_t *siginfo, void *context)
 {
     // Simply set the running flag to false on SIGTERM and SIGINT (CTRL+C) for global shutdown.
     if (signal == SIGTERM || signal == SIGINT)
     {
+        reinterpret_cast<Task*>(context)->stopHook();
+        reinterpret_cast<Task*>(context)->cleanupHook();
         globalShutdown.store(true);
     }
 }
@@ -49,15 +51,6 @@ Task::Task(std::string const& name)
     this->device_is_running = false;
     this->imu_calibration_running = false;
     this->davis_handle = nullptr;
-
-    struct sigaction shutdownAction;
-
-    shutdownAction.sa_handler = &globalShutdownSignalHandler;
-    shutdownAction.sa_flags   = 0;
-    sigemptyset(&shutdownAction.sa_mask);
-    sigaddset(&shutdownAction.sa_mask, SIGTERM);
-    sigaddset(&shutdownAction.sa_mask, SIGINT);
-
 }
 
 Task::~Task()
@@ -106,6 +99,14 @@ bool Task::configureHook()
     ::base::samples::frame::Frame *frame = new ::base::samples::frame::Frame();
     this->frame_msg.reset(frame);
     frame = nullptr;
+
+    /** catch the signals **/
+    struct sigaction action;
+    action.sa_sigaction = &hdl;
+    action.sa_flags   = SA_SIGINFO;
+    sigemptyset(&action.sa_mask);
+    sigaddset(&action.sa_mask, SIGTERM);
+    sigaddset(&action.sa_mask, SIGINT);
 
     return is_connected;
 }
