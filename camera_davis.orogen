@@ -38,7 +38,11 @@ task_context "Task" do
     property "reset_timestamps_delay", "double", -1.0
     property "imu_calibration_sample_size", "unsigned int", 1000
     property "acc_bias", "base::Vector3d"
+        doc "Accelerometers bias"
     property "gyro_bias", "base::Vector3d"
+        doc "Gyroscope bias"
+    property "combined_output", "bool", false
+        doc 'Set to true is you want Frame + event combined out in an image'
 
     #***************************
     #**** Device Properties ****
@@ -65,10 +69,14 @@ task_context "Task" do
         doc 'provides timestamped inertial samples containing the calibrated sensor readings.'
 
     output_port('frame', ro_ptr('base::samples::frame::Frame')).
-        doc 'RGB camera frame.'
+        doc 'Grayscale camera frame.'
 
     output_port('events', 'camera_davis::EventArray').
         doc 'array of events'
+
+     output_port('events_frame', ro_ptr('base::samples::frame::Frame')).
+        doc 'RGB camera frame with events.'
+
     # If you want that component's updateHook() to be executed when the "input"
     # port gets data, uncomment this and comment the 'periodic' line
     # port_driven "input"
