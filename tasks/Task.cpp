@@ -618,11 +618,11 @@ void Task::readout()
                     {
                         if ((*it).polarity)
                         {
-                            color_cv_frame.at<cv::Vec3b>(cv::Point((*it).x,(*it).y)) = cv::Vec3b(0.0, 0.0, 255.0);
+                            color_cv_frame.at<cv::Vec3b>(cv::Point((*it).x,(*it).y)) = cv::Vec3b(0.0, 255.0, 0.0);
                         }
                         else
                         {
-                            color_cv_frame.at<cv::Vec3b>(cv::Point((*it).x,(*it).y)) = cv::Vec3b(0.0, 255.0, 0.0);
+                            color_cv_frame.at<cv::Vec3b>(cv::Point((*it).x,(*it).y)) = cv::Vec3b(0.0, 0.0, 255.0);
                         }
                     }
 
