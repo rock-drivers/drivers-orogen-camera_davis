@@ -3,6 +3,8 @@
 #include "Task.hpp"
 #include <atomic>
 #include <csignal>
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
 
 using namespace camera_davis;
 
@@ -100,6 +102,11 @@ bool Task::configureHook()
     this->frame_msg.reset(frame);
     frame = nullptr;
 
+    /** set the event frame member **/
+    ::base::samples::frame::Frame *events_frame = new ::base::samples::frame::Frame();
+    this->events_frame_msg.reset(events_frame);
+    events_frame = nullptr;
+
     /** catch the signals **/
     struct sigaction action;
     action.sa_sigaction = &hdl;
@@ -128,7 +135,6 @@ void Task::updateHook()
 
     while (true)
     {
-        std::cout<<"****\n";
         this->readout();
     }
 }
@@ -149,7 +155,7 @@ void Task::cleanupHook()
 {
     caerLog(CAER_LOG_INFO, "Exiting from DAVIS camera driver",  "executing driver cleanup(close)");
     RTT::log(RTT::Info)<<"Exiting from DAVIS camera driver, executing driver cleanup(close)"<<RTT::endlog();
-	// Close automatically done by destructor.
+    // Close automatically done by destructor.
     TaskBase::cleanupHook();
 
 }
@@ -454,11 +460,11 @@ void Task::readout()
     /** Skip if nothing there **/
     if (packet_container == nullptr)
     {
-        std::cout<<"Container empty\n";
+        //std::cout<<"Container empty\n";
         return;
     }
 
-    printf("\nGot event container with %d packets (allocated).\n", packet_container->size());
+    //printf("\nGot event container with %d packets (allocated).\n", packet_container->size());
 
     for (auto &packet : *packet_container)
     {
@@ -507,7 +513,6 @@ void Task::readout()
                     next_send_time = boost::posix_time::microsec_clock::local_time() + this->delta;
                 }
 
-                this->event_array_msg.events.clear();
             }
         }
         else if (packet->getEventType() == IMU6_EVENT)
@@ -597,8 +602,46 @@ void Task::readout()
 
                 /** Write the camera frame into the port **/
                 _frame.write(this->frame_msg);
+
+                /** Create a combined output with the frame and the events in case it it true **/
+                if (_combined_output)
+                {
+                    //std::cout<<"Events array size:"<<this->event_array_msg.events.size()<<"\n";
+
+                    /** convert the frame to cv type **/
+                    cv::Mat cv_frame = frame_helper::FrameHelper::convertToCvMat(*this->frame_msg);
+                    cv::Mat color_cv_frame;
+                    cv::cvtColor(cv_frame, color_cv_frame, cv::COLOR_GRAY2BGR);
+
+                    for (std::vector<Event>::const_iterator it = this->event_array_msg.events.begin();
+                            it != this->event_array_msg.events.end(); ++it)
+                    {
+                        if ((*it).polarity)
+                        {
+                            color_cv_frame.at<cv::Vec3b>(cv::Point((*it).x,(*it).y)) = cv::Vec3b(0.0, 0.0, 255.0);
+                        }
+                        else
+                        {
+                            color_cv_frame.at<cv::Vec3b>(cv::Point((*it).x,(*it).y)) = cv::Vec3b(0.0, 255.0, 0.0);
+                        }
+                    }
+
+                    /** Convert from cv mat to frame **/
+                    ::base::samples::frame::Frame *events_frame_msg_ptr = this->events_frame_msg.write_access();
+                    events_frame_msg_ptr->image.clear();
+                    frame_helper::FrameHelper::copyMatToFrame(color_cv_frame, *events_frame_msg_ptr);
+
+                    /** Write the camera events frame into the port **/
+                    events_frame_msg_ptr->time = (this->reset_time + ::base::Time::fromMicroseconds(f.getTimestamp()));
+                    events_frame_msg_ptr->received_time = ::base::Time::fromMicroseconds(f.getTimestamp());
+                    this->events_frame_msg.reset(events_frame_msg_ptr);
+                    _events_frame.write(this->events_frame_msg);
+                }
+
             }
+            /** Clear event **/
+            this->event_array_msg.events.clear();
         }
-    }
+   }
 }
 

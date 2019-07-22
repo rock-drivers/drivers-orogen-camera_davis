@@ -78,6 +78,7 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
         ::base::samples::IMUSensors imu_msg;
         camera_davis::EventArray event_array_msg;
         RTT::extras::ReadOnlyPointer<base::samples::frame::Frame> frame_msg;
+        RTT::extras::ReadOnlyPointer<base::samples::frame::Frame> events_frame_msg;
 
     public:
         /** TaskContext constructor for Task
