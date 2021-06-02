@@ -11,7 +11,7 @@ ENV['PKG_CONFIG_PATH'] = "#{File.expand_path("..", File.dirname(__FILE__))}/buil
 
 Orocos.initialize
 
-Orocos::Process.run 'camera_davis::Task' => 'camera_davis' do
+Orocos::Process.run 'camera_davis::Task' => 'camera_davis', :gdb => false do
     # log all the output ports
     Orocos.log_all_ports 
     Orocos.conf.load_dir('../config')
