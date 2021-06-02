@@ -487,7 +487,7 @@ void Task::readout()
 
             for (const auto &evt : *polarity)
             {
-                camera_davis::Event e;
+                ::base::samples::Event e;
                 e.ts = this->reset_time + ::base::Time::fromMicroseconds(evt.getTimestamp64(*polarity));
                 e.x = evt.getX();
                 e.y = evt.getY();
@@ -613,7 +613,7 @@ void Task::readout()
                     cv::Mat color_cv_frame;
                     cv::cvtColor(cv_frame, color_cv_frame, cv::COLOR_GRAY2BGR);
 
-                    for (std::vector<Event>::const_iterator it = this->event_array_msg.events.begin();
+                    for (std::vector<::base::samples::Event>::const_iterator it = this->event_array_msg.events.begin();
                             it != this->event_array_msg.events.end(); ++it)
                     {
                         if ((*it).polarity)

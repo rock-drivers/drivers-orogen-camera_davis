@@ -71,7 +71,7 @@ task_context "Task" do
     output_port('frame', ro_ptr('base::samples::frame::Frame')).
         doc 'Grayscale camera frame.'
 
-    output_port('events', 'camera_davis::EventArray').
+    output_port('events', 'base::samples::EventArray').
         doc 'array of events'
 
      output_port('events_frame', ro_ptr('base::samples::frame::Frame')).

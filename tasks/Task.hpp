@@ -14,6 +14,7 @@
 /** Base types **/
 #include <base/samples/IMUSensors.hpp>
 #include <base/samples/Frame.hpp>
+#include <base/samples/EventArray.hpp>
 
 #include <frame_helper/FrameHelper.h>
 
@@ -76,7 +77,7 @@ tasks/Task.cpp, and will be put in the camera_davis namespace.
 
         /** output ports variables **/
         ::base::samples::IMUSensors imu_msg;
-        camera_davis::EventArray event_array_msg;
+        ::base::samples::EventArray event_array_msg;
         RTT::extras::ReadOnlyPointer<base::samples::frame::Frame> frame_msg;
         RTT::extras::ReadOnlyPointer<base::samples::frame::Frame> events_frame_msg;
 

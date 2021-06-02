@@ -13,24 +13,6 @@
 
 namespace camera_davis
 {
-    struct Event
-    {
-        unsigned int x;
-        unsigned int y;
-        ::base::Time ts;
-        bool polarity;
-    };
-
-    struct EventArray
-    {
-        ::base::Time time;
-        unsigned int height;
-        unsigned int width;
-
-        std::vector<Event> events;
-    };
-
-
     struct DeviceConfig
     {
         int streaming_rate;
